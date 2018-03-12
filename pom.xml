@@ -4,7 +4,7 @@
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <artifactId>mjs-parent</artifactId>
     <version>1.0</version>
-    <groupId>com.tech.mjs</groupId>
+    <groupId>com.teach.mjs</groupId>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
