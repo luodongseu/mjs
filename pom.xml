@@ -8,6 +8,7 @@
     <version>1.0</version>
     <modules>
         <module>mjs-cas-rest</module>
+        <module>mjs-cas-server</module>
     </modules>
     <groupId>com.teach.mjs</groupId>
 
