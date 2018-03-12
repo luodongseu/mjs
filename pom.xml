@@ -4,7 +4,11 @@
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>mjs-parent</artifactId>
+    <packaging>pom</packaging>
     <version>1.0</version>
+    <modules>
+        <module>mjs-cas-rest</module>
+    </modules>
     <groupId>com.teach.mjs</groupId>
 
     <parent>
