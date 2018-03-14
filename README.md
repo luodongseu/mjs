@@ -18,5 +18,5 @@
     - `data/tpl/app` 微信页面
         - `data/tpl/app/default/bosscenter*` 微信页面的零售商页面
         - `data/tpl/app/default/xunyi*` 微信页面的店员页面
-        - `data/tpl/web/` 后台管理面的模版
+    - `data/tpl/web/` 后台管理面的模版
 - `framework/` 公共函数、公共类等 
