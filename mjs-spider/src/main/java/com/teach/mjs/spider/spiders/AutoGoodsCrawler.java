@@ -18,7 +18,7 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 /**
- * Crawling news from hfut news
+ * 商品爬虫类，修改visit函数和构造函数，使其自动爬取多个商品信息
  *
  * @author hu
  */
@@ -106,11 +106,4 @@ public class AutoGoodsCrawler extends BreadthCrawler {
         next.clear();
         stop();
     }
-
-    public static void main(String[] args) throws Exception {
-        AutoGoodsCrawler crawler = new AutoGoodsCrawler();
-        /*start crawl with depth of 4*/
-        crawler.start(1);
-    }
-
 }
