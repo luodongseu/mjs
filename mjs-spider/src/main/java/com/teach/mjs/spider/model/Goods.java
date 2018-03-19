@@ -21,7 +21,7 @@ public class Goods {
     /**
      * 商品名称
      */
-    @Column(nullable = false)
+    @Column(nullable = false, length = 600)
     private String goodsName;
 
     /**
