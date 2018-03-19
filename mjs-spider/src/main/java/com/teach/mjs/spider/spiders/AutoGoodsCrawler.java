@@ -12,26 +12,26 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.sql.rowset.serial.SerialBlob;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Properties;
 import java.util.UUID;
 
 /**
  * 商品爬虫类，修改visit函数和构造函数，使其自动爬取多个商品信息
  *
- * @author hu
+ * @author luodong
  */
-@Component
 public class AutoGoodsCrawler extends BreadthCrawler {
 
-    @Value("${spring.datasource.url}")
     private String dataSourceUrl;
-    @Value("${spring.datasource.driver-class-name}")
     private String driverClassName;
-    @Value("${spring.datasource.username}")
     private String userName;
-    @Value("${spring.datasource.password}")
     private String password;
 
     /**
@@ -48,6 +48,34 @@ public class AutoGoodsCrawler extends BreadthCrawler {
         setThreads(1);
         getConf().setTopN(1);
         setResumable(false);
+
+        loadProperties();
+    }
+
+    /**
+     * 加载配置文件
+     */
+    private void loadProperties() {
+        Properties properties = new Properties();
+        InputStream inputStream = null;
+        try {
+            inputStream = this.getClass().getResourceAsStream("/application.properties");
+            properties.load(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (null != inputStream) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        dataSourceUrl = properties.getProperty("spring.datasource.url");
+        driverClassName = properties.getProperty("spring.datasource.driver-class-name");
+        userName = properties.getProperty("spring.datasource.username");
+        password = properties.getProperty("spring.datasource.password");
     }
 
     @Override
@@ -69,41 +97,62 @@ public class AutoGoodsCrawler extends BreadthCrawler {
             goods.setGoodsName(name);
             goods.setGoodsIntro(detail);
 
-            // 存到数据库
-            BasicDataSource dataSource = new BasicDataSource();
-            dataSource.setUrl(dataSourceUrl);
-            dataSource.setDriverClassName(driverClassName);
-            dataSource.setUsername(userName);
-            dataSource.setPassword(password);
-            Connection connection = null;
-            PreparedStatement preparedStatement = null;
+            saveGoodsToDB(goods);
+        }
+    }
+
+    /**
+     * 将商品信息存到数据库
+     *
+     * @param goods
+     */
+    private void saveGoodsToDB(Goods goods) {
+        // 存到数据库
+        BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setUrl(dataSourceUrl);
+        dataSource.setDriverClassName(driverClassName);
+        dataSource.setUsername(userName);
+        dataSource.setPassword(password);
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            connection = dataSource.getConnection();
+            connection.setAutoCommit(false);
+            preparedStatement = connection.prepareStatement(
+                    "insert into t_goods(`goods_id`,`goods_name`,`goods_code`,`goods_intro`) values(?, ?, ?, ?)");
+            preparedStatement.setString(1, goods.getGoodsId());
+            preparedStatement.setString(2, goods.getGoodsName());
+            preparedStatement.setBlob(3, new SerialBlob(goods.getGoodsCode().getBytes()));
+            preparedStatement.setBlob(4, new SerialBlob(goods.getGoodsIntro().getBytes()));
+            preparedStatement.execute();
+            connection.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
             try {
-                connection = dataSource.getConnection();
-                connection.setAutoCommit(false);
-                preparedStatement = connection.prepareStatement(
-                        "insert into t_goods(`goods_id`,`goods_name`,`goods_code`,`goods_intro`) values(?, ?, ?, ?)");
-                preparedStatement.setString(1, goods.getGoodsId());
-                preparedStatement.setString(2, goods.getGoodsName());
-                preparedStatement.setBlob(3, new SerialBlob(goods.getGoodsCode().getBytes()));
-                preparedStatement.setBlob(4, new SerialBlob(goods.getGoodsIntro().getBytes()));
-                preparedStatement.execute();
-                connection.commit();
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (null != preparedStatement) {
-                        preparedStatement.close();
-                    }
-                    if (null != connection) {
-                        connection.close();
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                if (null != preparedStatement) {
+                    preparedStatement.close();
                 }
+                if (null != connection) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
-        next.clear();
-        stop();
     }
+
+
+    /**
+     * 启动爬虫的main函数
+     *
+     * @param args
+     * @throws Exception
+     */
+    public static void main(String[] args) throws Exception {
+        AutoGoodsCrawler crawler = new AutoGoodsCrawler();
+        crawler.start(1);
+    }
+
+
 }

@@ -23,23 +23,12 @@ public class GoodsController {
 
     @Autowired
     GoodsRepository goodsRepository;
-    @Autowired
-    AutoGoodsCrawler goodsCrawler;
 
     /**
      * 初始化该控制器之前的操作
      */
     @PostConstruct()
     public void init() {
-        try {
-            /**
-             * 启动爬虫， 自动向数据库中存入爬到的数据
-             */
-            goodsCrawler.start(1);
-            goodsCrawler.stop();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @GetMapping("/list")
