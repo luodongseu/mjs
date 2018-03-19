@@ -1,5 +1,6 @@
 $(document).ready(function(){
     $.get("/goods/" + window.location.href.split("?")[1].split("=")[1],function(data,status){
+        $(document).attr("title", data.goodsName);
         var E = window.wangEditor;
         var editor = new E('#editor');
         // 或者 var editor = new E( document.getElementById('editor') )
