@@ -3,6 +3,8 @@ package com.teach.mjs.spider.spiders;
 import cn.edu.hfut.dmic.webcollector.model.CrawlDatums;
 import cn.edu.hfut.dmic.webcollector.model.Page;
 import cn.edu.hfut.dmic.webcollector.plugin.berkeley.BreadthCrawler;
+import com.github.jarlakxen.embedphantomjs.PhantomJSReference;
+import com.github.jarlakxen.embedphantomjs.executor.PhantomJSConsoleExecutor;
 import com.teach.mjs.spider.model.Goods;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.jsoup.select.Elements;
@@ -144,8 +146,22 @@ public class AutoGoodsCrawler extends BreadthCrawler {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        AutoGoodsCrawler crawler = new AutoGoodsCrawler();
-        crawler.start(1);
+//        AutoGoodsCrawler crawler = new AutoGoodsCrawler();
+//        crawler.start(1);
+
+        PhantomJSConsoleExecutor ex = new PhantomJSConsoleExecutor(PhantomJSReference.create().build());
+        ex.start();
+        ex.execute("var page = require('webpage').create();\n" +
+                "page.open('http://baidu.com', function(status) {\n" +
+                "  console.log(\"Status: \" + status);\n" +
+                "  if(status === \"success\") {\n" +
+                "    page.render('example.png');\n" +
+                "  }\n" +
+                "  phantom.exit();\n" +
+                "});");
+        System.out.println(ex.execute("system.stdout.writeLine('TEST1');", "true")); // This prints "TEST1"
+        System.out.println(ex.execute("system.stdout.writeLine('TEST2');", "true")); // This prints "TEST2"
+        ex.destroy();
     }
 
 
